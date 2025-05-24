@@ -1,45 +1,78 @@
 import streamlit as st
 from client import STOCK_API
-import plotly.graph_objects as go
+import plotly.graph_objects  as go
 
-st.set_page_config(page_title="STOCK MARKET APP", layout='wide')
 
-st.title("Stock Market App")
-st.subheader("by Varsha Mhetre")
+# Set title to page
 
-company = st.text_input("Enter Company Name")
+st.set_page_config(page_title= 'Stock Market  app' , layout= 'wide')
 
-@st.cache_resource(ttl=3600)
+# give title inside page 
+
+st.title("STOCK MARKET APP")
+
+st.subheader('By Varsha Mhetre')
+
+
+# add text box for company name
+
+company =  st.text_input("Enter company name")
+
+# creat connection between backend and frontend
+
+@st.cache_resource(ttl =  3600)
 def fetch_data():
-    return STOCK_API(api_key=st.secrets["API_KEY"])
+    return STOCK_API(api_key= st.secrets['API_KEY'])
 
-stock_api = fetch_data()
+stock_api  =  fetch_data()
 
-@st.cache_data(ttl=3600)
+# create class for get symbol
+st.cache_data(ttl =  3600)
 def get_symbol(company_name):
     return stock_api.symbol_search(company_name)
 
-@st.cache_data(ttl=3600)
-def plot_graph(symbol):
-    df = stock_api.daily_data(symbol)
-    fig = stock_api.plot_chart(df)
+# Plot the graph 
+
+@st.cache_data(ttl =  3600)
+def graph(symbol):
+    df  = stock_api.daily_data(symbol)
+    fig  =  stock_api.plot_chart(df)
     return fig
 
+
 if company:
-    company_data = get_symbol(company)
 
-    if company_data:
-        symbol_list = list(company_data.keys())
-        selected_symbol = st.selectbox("Select Stock Symbol", symbol_list)
 
-        selected_info = company_data[selected_symbol]
+# if compnay exists
+    company_data  = get_symbol(company_name=company)
+    if company_data :
+    
+        symbols_data  =  list(company_data.keys())
 
-        st.success(f"**Company Name:** {selected_info[0]}")
-        st.success(f"**Region:** {selected_info[1]}")
-        st.success(f"**Currency:** {selected_info[2]}")
+        options     =  st.selectbox("search symbol here" , symbols_data)
+        selected_data =  company_data[options]
+        st.success(f"company name {selected_data[0]}")
+        st.success(f"company Region  {selected_data[1]} ")
 
-        # Show chart immediately
-        fig = plot_graph(selected_symbol)
-        st.plotly_chart(fig, use_container_width=True)
+        st.success(f"currency {selected_data[2]}")
+
+        submit =  st.button('Plot'  ,type =  "primary")
+        if submit :
+            fig  = graph(symbol=options)
+            st.plotly_chart(fig , use_container_width= True)
     else:
-        st.warning("No matching company found.")
+        st.warning('Company is not exists')
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
